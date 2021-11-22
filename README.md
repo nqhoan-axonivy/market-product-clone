@@ -4,4 +4,4 @@
 
 "YOUR SHORT DESCRIPTION GOES HERE"
 
-Read our [Documentation](${project.name}-product/README.md).
+Read our [documentation](${project.name}-product/README.md).
