@@ -1,7 +1,7 @@
-# "PRODUCT NAME GOES HERE"
+# MY-PRODUCT-NAME
 
-[![CI Build](https://github.com/axonivy-market/${repo.name}/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/${repo.name}/actions/workflows/ci.yml)
+[![CI Build](https://github.com/axonivy-market/REPO-NAME/actions/workflows/ci.yml/badge.svg)](https://github.com/axonivy-market/REPO-NAME/actions/workflows/ci.yml)
 
 "YOUR SHORT DESCRIPTION GOES HERE"
 
-Read our [documentation](${project.name}-product/README.md).
+Read our [documentation](MY-PRODUCT-NAME-product/README.md).
