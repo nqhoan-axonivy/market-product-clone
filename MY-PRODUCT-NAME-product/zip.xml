@@ -10,7 +10,8 @@
     <fileSet>
       <directory>.</directory>
       <includes>
-        <include>*.json</include>
+        <include>product.json</include>
+        <include>openapi.json</include>
         <include>README.md</include>
         <include>**/*.png</include>
       </includes>
