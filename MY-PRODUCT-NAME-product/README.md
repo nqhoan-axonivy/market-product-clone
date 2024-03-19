@@ -1,24 +1,31 @@
+<!--
+Dear developer!     
+
+When you create your very valuable documentation, please be aware that this Readme.md is not only published on github. This documentation is also processed automatically and published on our website. For this to work, the two headings "Demo" and "Setup" must not be changed
+-->
+
 # MY-PRODUCT-NAME
 
-YOUR DESCRIPTION GOES HERE
+YOUR DESCRIPTION GOES HERE: Please just give a short description here without further headings.
 
-<snip: to be deleted>
-Dear developer! When you create your very valuable documentation, please be aware that this Readme.md is not only published on github.
-
-We also use all entries under the signature "Demo" for the documentation on our website, e.g. for the Connector A-Trust here: https://market.axonivy.com/a-trust#tab-demo
-
-The entries under the signature "Setup" are filled by this tab: https://market.axonivy.com/a-trust#tab-setup.
-
-The explanations under "MY-RRODUCT-NAME" are displayed here: https://market.axonivy.com/a-trust#tab-description
-<snap: to be deleted>
+<!--
+The explanations under "MY-RRODUCT-NAME" are displayed  e.g. for the Connector A-Trust here: https://market.axonivy.com/a-trust#tab-description   
+-->
 
 ## Demo
 
 YOUR DEMO DESCRIPTION GOES HERE
 
+<!--
+We use all entries under the heading "Demo" for the demo-Tab on our Website, e.g. for the Connector A-Trust here: https://market.axonivy.com/a-trust#tab-demo  
+-->
+
 ## Setup
 
 YOUR SETUP DESCRIPTION GOES HERE
+<!--
+The entries under the heading "Setup" are filled in this tab, e.g. for the Connector A-Trust here: https://market.axonivy.com/a-trust#tab-setup. 
+-->
 
 ```
 @variables.yaml@
