@@ -6,7 +6,8 @@ When you create your very valuable documentation, please be aware that this  is 
 
 # MEIN-PRODUKT-NAME
 
-HIER KOMMT DEINE BESCHREIBUNG HIN: Bitte gib hier nur eine kurze Beschreibung ohne weitere Überschriften an. Sie wird auf unserer Homepage angezeigt.
+Bitte übersetze mindestens das "Description"-Chapter aus https://github.com/axonivy-market/market-product/blob/master/MY-PRODUCT-NAME-product/README.md. Es wird auf unserer Homepage angezeigt.
+Falls Du darüber hinaus auch die anderen Chapter übersetzt, werden auch diese auf der Homepage auf Deutsch angezeigt.
 
 <!--
 Die Erläuterungen unter „MEIN-PRODUKT-NAME“ werden z.B. für den  Adobe Konnektor hier angezeigt: https://market.axonivy.com/adobe-acrobat-connector#tab-description wenn ein Nutzer Deutsch als Anzeigesprache ausgewählt hat.
