@@ -53,10 +53,9 @@ jobs:
           productName="${{ github.event.inputs.productName }}"
           productType="${{ github.event.inputs.productType }}"
 
-          # Build groupId: remove productType suffix, replace '-' with '.'
-          lowercaseProductName=$(echo "$productName" | tr '[:upper:]' '[:lower:]')
-          groupId="com.axonivy.$productType.${lowercaseProductName/%-${productType}}"
-          groupId="${groupId//-/.}"
+          # Build groupId: convert to lowercase, replace spaces and hyphens with dots
+          lowercaseProductName=$(echo "$productName" | tr '[:upper:]' '[:lower:]' | sed 's/[ -]/./g')
+          groupId="com.axonivy.$productType.$lowercaseProductName"
 
           # Combined name for README file (e.g. "MyProduct Connector")
           displayedType="$(tr '[:lower:]' '[:upper:]' <<< ${productType:0:1})${productType:1}"
@@ -71,29 +70,75 @@ jobs:
         run: |
           productName="${{ steps.vars.outputs.productName }}"
           groupId="${{ steps.vars.outputs.groupId }}"
-          repoName="${{ github.event.repository.name }}"
           displayName="${{ steps.vars.outputs.displayName }}"
           inputVersion="${{ github.event.inputs.version }}"
+          repoName="${{ github.event.repository.name }}"
 
           find . -type f -not -path "./.git/*" -not -path "./.github/*" \
             -exec sed -i \
               -e "s|# MY-PRODUCT-NAME|# $displayName|g" \
               -e "s|\"MY-PRODUCT-NAME\"|\"$repoName\"|g" \
               -e "s|MY-PRODUCT-NAME|$repoName|g" \
+              -e "s|REPO-NAME|${repoName}|g" \
               -e "s|<version>12.0.0-SNAPSHOT</version>|<version>$inputVersion-SNAPSHOT</version>|g" \
               -e "s|<project.build.plugin.version>.*</project.build.plugin.version>|<project.build.plugin.version>$inputVersion</project.build.plugin.version>|g" \
               -e "s|<tester.version>.*</tester.version>|<tester.version>$inputVersion</tester.version>|g" \
               -e "s|MY-GROUP-ID|$groupId|g" \
-              -e "s|REPO-NAME|${productName}|g" \
               -e "s|<groupId>com.axonivy.market</groupId>|<groupId>$groupId</groupId>|g" {} +
 
       - name: Replace placeholders in file and folder names
         run: |
           productName="${{ github.event.repository.name }}"
+          baseId=$(echo "$productName" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-\|-$//g')
 
-          # Traverse deepest paths first to avoid conflicts
-          find . -depth -name "*MY-PRODUCT-NAME*" \
-            -exec bash -c 'f="{}"; mv "$f" "$(dirname "$f")/$(basename "$f" | sed "s/MY-PRODUCT-NAME/'"$productName"'/g")"' \;
+          declare -A dirMap=( \
+            ["MY-PRODUCT-NAME-product"]="$productName" \
+            ["MY-PRODUCT-NAME-test"]="$productName-test" \
+            ["MY-PRODUCT-NAME-demo"]="$productName-demo" \
+            ["MY-PRODUCT-NAME"]="$productName" )
+
+          for original in "${!dirMap[@]}"; do
+            if [ -d "$original" ]; then
+              target="${dirMap[$original]}"
+              if [ "$original" != "$target" ]; then
+                echo "Renaming directory $original -> $target"
+                mv "$original" "$target"
+              fi
+            fi
+          done
+
+          # Deep fallback for any nested names still containing placeholder
+          find . -depth -name '*MY-PRODUCT-NAME*' -exec bash -c 'for p; do b=$(basename "$p"); nb=${b//MY-PRODUCT-NAME/'"$baseId"'}; if [ "$b" != "$nb" ]; then mv "$p" "$(dirname "$p")/$nb"; fi; done' _ {} +
+
+      - name: Create package directory skeletons (src + dataclasses)
+        run: |
+          set -euo pipefail
+          groupId="${{ steps.vars.outputs.groupId }}"
+          packagePath="${groupId//./\/}"
+          echo "Preparing package skeleton for groupId=$groupId => $packagePath"
+
+          shopt -s nullglob
+          for pom in ./*/pom.xml; do
+            moduleDir="${pom%/pom.xml}"
+            echo "Module: $moduleDir"
+            # Source-type roots
+            for root in src src_hd src_test; do
+              if [ ! -d "$moduleDir/$root" ]; then
+                if [ "$root" = "src" ]; then
+                  echo "  + creating missing $root root"; mkdir -p "$moduleDir/$root"; else continue; fi
+              fi
+              target="$moduleDir/$root/$packagePath"
+              if [ ! -d "$target" ]; then
+                echo "  + mkdir -p $target"; mkdir -p "$target"; touch "$target/.gitkeep"; fi
+            done
+            # Dataclasses root (special for Ivy)
+            if [ -d "$moduleDir/dataclasses" ]; then
+              dcTarget="$moduleDir/dataclasses/$packagePath"
+              if [ ! -d "$dcTarget" ]; then
+                echo "  + mkdir -p $dcTarget"; mkdir -p "$dcTarget"; touch "$dcTarget/.gitkeep"; fi
+            fi
+          done
+          echo "Package + dataclasses skeleton creation complete."
 
       - name: Commit changes to master and remove initialization workflow
         if: success()
