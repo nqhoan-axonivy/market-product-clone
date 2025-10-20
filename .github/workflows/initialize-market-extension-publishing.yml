@@ -77,6 +77,7 @@ jobs:
           find . -type f -not -path "./.git/*" -not -path "./.github/*" \
             -exec sed -i \
               -e "s|# MY-PRODUCT-NAME|# $displayName|g" \
+              -e "s|# MEIN-PRODUKT-NAME|# $displayName|g" \
               -e "s|\"MY-PRODUCT-NAME\"|\"$repoName\"|g" \
               -e "s|MY-PRODUCT-NAME|$repoName|g" \
               -e "s|REPO-NAME|${repoName}|g" \
@@ -105,7 +106,14 @@ jobs:
           shopt -s nullglob
           for pom in ./*/pom.xml; do
             moduleDir="${pom%/pom.xml}"
-            echo "Module: $moduleDir"
+            moduleName="$(basename "$moduleDir")"
+
+            # Skip any module ending with "-product" 
+            if [[ "$moduleName" == *-product ]]; then
+              echo "Skipping module $moduleName (product module)"
+              continue
+            fi
+
             # Source-type roots
             for root in src src_hd src_test; do
               if [ ! -d "$moduleDir/$root" ]; then
