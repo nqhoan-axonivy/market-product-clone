@@ -84,31 +84,16 @@ jobs:
               -e "s|<project.build.plugin.version>.*</project.build.plugin.version>|<project.build.plugin.version>$inputVersion</project.build.plugin.version>|g" \
               -e "s|<tester.version>.*</tester.version>|<tester.version>$inputVersion</tester.version>|g" \
               -e "s|MY-GROUP-ID|$groupId|g" \
-              -e "s|<groupId>com.axonivy.market</groupId>|<groupId>$groupId</groupId>|g" {} +
+              -e "s|<groupId>com.axonivy.market</groupId>|<groupId>$groupId</groupId>|g" \
+              -e "s|com\.axonivy\.market\.my\.product\.name|$groupId|g" \
+              {} +;
 
       - name: Replace placeholders in file and folder names
         run: |
           productName="${{ github.event.repository.name }}"
-          baseId=$(echo "$productName" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-\|-$//g')
-
-          declare -A dirMap=( \
-            ["MY-PRODUCT-NAME-product"]="$productName" \
-            ["MY-PRODUCT-NAME-test"]="$productName-test" \
-            ["MY-PRODUCT-NAME-demo"]="$productName-demo" \
-            ["MY-PRODUCT-NAME"]="$productName" )
-
-          for original in "${!dirMap[@]}"; do
-            if [ -d "$original" ]; then
-              target="${dirMap[$original]}"
-              if [ "$original" != "$target" ]; then
-                echo "Renaming directory $original -> $target"
-                mv "$original" "$target"
-              fi
-            fi
-          done
-
-          # Deep fallback for any nested names still containing placeholder
-          find . -depth -name '*MY-PRODUCT-NAME*' -exec bash -c 'for p; do b=$(basename "$p"); nb=${b//MY-PRODUCT-NAME/'"$baseId"'}; if [ "$b" != "$nb" ]; then mv "$p" "$(dirname "$p")/$nb"; fi; done' _ {} +
+          # Traverse deepest paths first to avoid conflicts
+          find . -depth -name "*MY-PRODUCT-NAME*" \
+            -exec bash -c 'f="{}"; mv "$f" "$(dirname "$f")/$(basename "$f" | sed "s/MY-PRODUCT-NAME/'"$productName"'/g")"' \;
 
       - name: Create package directory skeletons (src + dataclasses)
         run: |
